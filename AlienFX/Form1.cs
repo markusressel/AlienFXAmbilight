@@ -10,11 +10,9 @@ using System.Windows.Forms;
 
 using LightFX;
 
-namespace AlienFX
-{
+namespace AlienFX {
 
-    public partial class Form1 : Form
-    {
+    public partial class Form1 : Form {
         Object lockObject = new Object();
 
         NotifyIcon mynotifyicon;
@@ -32,8 +30,7 @@ namespace AlienFX
         int maxThreads;
         int temp;
 
-        public Form1()
-        {
+        public Form1() {
             InitializeComponent();
 
             mynotifyicon = new NotifyIcon();
@@ -48,27 +45,21 @@ namespace AlienFX
             mynotifyicon.Visible = false;
         }
 
-        private void tray_Show_Click(object sender, EventArgs e)
-        {
+        private void tray_Show_Click(object sender, EventArgs e) {
             restore();
         }
 
-        private void tray_Exit_Click(object sender, EventArgs e)
-        {
+        private void tray_Exit_Click(object sender, EventArgs e) {
             mynotifyicon.Dispose();
             Close();
         }
 
-        private void OnTimedEvent(object source, System.Timers.ElapsedEventArgs e)
-        {
-            lock (lockObject)
-            {
+        private void OnTimedEvent(object source, System.Timers.ElapsedEventArgs e) {
+            lock (lockObject) {
                 System.Threading.ThreadPool.GetAvailableThreads(out availableThreads, out temp);
                 System.Threading.ThreadPool.GetMaxThreads(out maxThreads, out temp);
-                if (maxThreads - availableThreads > 5)
-                {
-                    numericUpDownRefreshRate.Invoke((MethodInvoker)delegate
-                    {
+                if (maxThreads - availableThreads > 5) {
+                    numericUpDownRefreshRate.Invoke((MethodInvoker)delegate {
                         timer.Interval++;
                         numericUpDownRefreshRate.Value++;
                         Properties.Settings.Default.RefreshRate++;
@@ -78,16 +69,15 @@ namespace AlienFX
 
                 // Console.WriteLine((DateTime.Now - time).Milliseconds);
                 time = DateTime.Now;
-                control.setColor(screenControl.calcAverageColor());
+                if (screenControl != null) {
+                    control.setColor(screenControl.calcAverageColor());
+                }
             }
         }
 
-        private void buttonStartAmbilight_Click(object sender, EventArgs e)
-        {
-            if (radioButtonCustomResolution.Checked)
-            {
-                if ((int)numericUpDownTopLeftX.Value > Screen.PrimaryScreen.Bounds.Width || (int)numericUpDownTopLeftY.Value > Screen.PrimaryScreen.Bounds.Height || (int)numericUpDownBottomRightX.Value > Screen.PrimaryScreen.Bounds.Width || (int)numericUpDownBottomRightY.Value > Screen.PrimaryScreen.Bounds.Height)
-                {
+        private void buttonStartAmbilight_Click(object sender, EventArgs e) {
+            if (radioButtonCustomResolution.Checked) {
+                if ((int)numericUpDownTopLeftX.Value > Screen.PrimaryScreen.Bounds.Width || (int)numericUpDownTopLeftY.Value > Screen.PrimaryScreen.Bounds.Height || (int)numericUpDownBottomRightX.Value > Screen.PrimaryScreen.Bounds.Width || (int)numericUpDownBottomRightY.Value > Screen.PrimaryScreen.Bounds.Height) {
                     labelStatus.Text = "values to big!";
                     labelStatus.ForeColor = Color.Red;
                     return;
@@ -100,8 +90,7 @@ namespace AlienFX
             control = new AlienFXControl();
             screenControl = new ScreenControl();
 
-            if (control.initialize())
-            {
+            if (control.initialize()) {
                 startX = (int)numericUpDownTopLeftX.Value;
                 stopX = (int)numericUpDownBottomRightX.Value;
                 startY = (int)numericUpDownTopLeftY.Value;
@@ -109,20 +98,16 @@ namespace AlienFX
 
                 steps = (int)numericUpDownQuality.Value;
 
-                if (radioButtonCustomResolution.Checked)
-                {
+                if (radioButtonCustomResolution.Checked) {
                     screenControl.calculatePixels(startX, stopX, startY, stopY, steps, steps);
-                }
-                else if (radioButton_235_100_ratio.Checked)
-                {
+                } else if (radioButton_235_100_ratio.Checked) {
                     startX = 0;
                     stopX = Screen.PrimaryScreen.Bounds.Width;
-                    startY = ((int) (Screen.PrimaryScreen.Bounds.Height - (Screen.PrimaryScreen.Bounds.Width / 2.35)) / 2);
+                    startY = ((int)(Screen.PrimaryScreen.Bounds.Height - (Screen.PrimaryScreen.Bounds.Width / 2.35)) / 2);
                     stopY = Screen.PrimaryScreen.Bounds.Height - startY;
 
                     screenControl.calculatePixels(startX, stopX, startY, stopY, steps, steps);
-                } else
-                {
+                } else {
                     screenControl.calculatePixels(steps, steps);
                 }
 
@@ -131,39 +116,33 @@ namespace AlienFX
 
                 labelStatus.Text = "Running!";
                 labelStatus.ForeColor = Color.Green;
-            }
-            else
-            {
+            } else {
                 labelStatus.Text = "Error!";
                 labelStatus.ForeColor = Color.Red;
             }
         }
 
-        private void buttonStopAmbilight_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                if (oThread != null && oThread.IsAlive)
-                {
-                    oThread.Abort();
+        private void buttonStopAmbilight_Click(object sender, EventArgs e) {
+            try {
+                lock (lockObject) {
+                    if (oThread != null && oThread.IsAlive) {
+                        oThread.Abort();
+                    }
+                    oThread = null;
+                    timer.Enabled = false;
+                    control.release();
+                    screenControl = null;
+                    labelStatus.Text = "Stopped...";
+                    labelStatus.ForeColor = Color.Black;
                 }
-                oThread = null;
-                timer.Enabled = false;
-                control.release();
-                labelStatus.Text = "Stopped...";
-                labelStatus.ForeColor = Color.Black;
-            }
-            catch
-            {
+            } catch {
                 labelStatus.Text = "Error!";
                 labelStatus.ForeColor = Color.Red;
             }
         }
 
-        private void Form1_Load_1(object sender, EventArgs e)
-        {
-            if (Properties.Settings.Default.StartMinimized)
-            {
+        private void Form1_Load_1(object sender, EventArgs e) {
+            if (Properties.Settings.Default.StartMinimized) {
                 minimizeToTray(false);
             }
 
@@ -175,23 +154,17 @@ namespace AlienFX
             radioButton_235_100_ratio.Checked = Properties.Settings.Default.cinemaRatio;
             numericUpDownTopLeftX.Value = Properties.Settings.Default.TopLeftX;
             numericUpDownTopLeftY.Value = Properties.Settings.Default.TopLeftY;
-            if (Properties.Settings.Default.BottomRightX == 0)
-            {
+            if (Properties.Settings.Default.BottomRightX == 0) {
                 Properties.Settings.Default.BottomRightX = Screen.PrimaryScreen.Bounds.Width;
                 numericUpDownBottomRightX.Value = Properties.Settings.Default.BottomRightX;
-            }
-            else
-            {
+            } else {
                 numericUpDownBottomRightX.Value = Properties.Settings.Default.BottomRightX;
             }
 
-            if (Properties.Settings.Default.BottomRightY == 0)
-            {
+            if (Properties.Settings.Default.BottomRightY == 0) {
                 Properties.Settings.Default.BottomRightY = Screen.PrimaryScreen.Bounds.Height;
                 numericUpDownBottomRightY.Value = Properties.Settings.Default.BottomRightY;
-            }
-            else
-            {
+            } else {
                 numericUpDownBottomRightY.Value = Properties.Settings.Default.BottomRightY;
             }
 
@@ -202,16 +175,13 @@ namespace AlienFX
             timer.Elapsed += new System.Timers.ElapsedEventHandler(OnTimedEvent);
             timer.Enabled = false;
 
-            if (Properties.Settings.Default.StartAutomatically)
-            {
+            if (Properties.Settings.Default.StartAutomatically) {
                 buttonStartAmbilight_Click(null, null);
             }
         }
 
-        private void radioButtonCustomResolution_CheckedChanged(object sender, EventArgs e)
-        {
-            if (radioButtonCustomResolution.Checked)
-            {
+        private void radioButtonCustomResolution_CheckedChanged(object sender, EventArgs e) {
+            if (radioButtonCustomResolution.Checked) {
                 radioButtonFullscreen.Checked = false;
                 radioButton_235_100_ratio.Checked = false;
             }
@@ -220,10 +190,8 @@ namespace AlienFX
             Properties.Settings.Default.cinemaRatio = radioButton_235_100_ratio.Checked;
         }
 
-        private void radioButtonFullscreen_CheckedChanged(object sender, EventArgs e)
-        {
-            if (radioButtonFullscreen.Checked)
-            {
+        private void radioButtonFullscreen_CheckedChanged(object sender, EventArgs e) {
+            if (radioButtonFullscreen.Checked) {
                 radioButtonCustomResolution.Checked = false;
                 radioButton_235_100_ratio.Checked = false;
             }
@@ -232,105 +200,87 @@ namespace AlienFX
             Properties.Settings.Default.cinemaRatio = radioButton_235_100_ratio.Checked;
         }
 
-        private void numericUpDownTopLeftX_ValueChanged(object sender, EventArgs e)
-        {
+        private void numericUpDownTopLeftX_ValueChanged(object sender, EventArgs e) {
             Properties.Settings.Default.TopLeftX = numericUpDownTopLeftX.Value;
         }
 
-        private void numericUpDownTopLeftY_ValueChanged(object sender, EventArgs e)
-        {
+        private void numericUpDownTopLeftY_ValueChanged(object sender, EventArgs e) {
             Properties.Settings.Default.TopLeftY = numericUpDownTopLeftY.Value;
         }
 
-        private void numericUpDownBottomRightX_ValueChanged(object sender, EventArgs e)
-        {
+        private void numericUpDownBottomRightX_ValueChanged(object sender, EventArgs e) {
             Properties.Settings.Default.BottomRightX = numericUpDownBottomRightX.Value;
         }
 
-        private void numericUpDownBottomRightY_ValueChanged(object sender, EventArgs e)
-        {
+        private void numericUpDownBottomRightY_ValueChanged(object sender, EventArgs e) {
             Properties.Settings.Default.BottomRightY = numericUpDownBottomRightY.Value;
         }
 
-        private void numericUpDownQuality_ValueChanged(object sender, EventArgs e)
-        {
+        private void numericUpDownQuality_ValueChanged(object sender, EventArgs e) {
             Properties.Settings.Default.Quality = numericUpDownQuality.Value;
         }
 
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            try
-            {
-                Properties.Settings.Default.Save();
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e) {
+            try {
+                lock (lockObject) {
+                    Properties.Settings.Default.Save();
 
-                if (oThread != null && oThread.IsAlive)
-                {
-                    oThread.Abort();
+                    if (oThread != null && oThread.IsAlive) {
+                        oThread.Abort();
+                    }
+                    oThread = null;
+                    control.release();
+                    screenControl = null;
+                    labelStatus.Text = "Stopped...";
+                    labelStatus.ForeColor = Color.Black;
                 }
-                oThread = null;
-                control.release();
-                labelStatus.Text = "Stopped...";
-                labelStatus.ForeColor = Color.Black;
-
-                mynotifyicon.Dispose();
-            }
-            catch
-            {
+            } catch {
                 labelStatus.Text = "Error!";
                 labelStatus.ForeColor = Color.Red;
+            } finally {
+                mynotifyicon.Dispose();
             }
         }
 
-        private void numericUpDownRefreshRate_ValueChanged(object sender, EventArgs e)
-        {
-            if (timer != null)
-            {
+        private void numericUpDownRefreshRate_ValueChanged(object sender, EventArgs e) {
+            if (timer != null) {
                 timer.Interval = (int)numericUpDownRefreshRate.Value;
             }
             Properties.Settings.Default.RefreshRate = numericUpDownRefreshRate.Value;
         }
 
-        private void checkBox_startAutomatically_CheckedChanged(object sender, EventArgs e)
-        {
+        private void checkBox_startAutomatically_CheckedChanged(object sender, EventArgs e) {
             Properties.Settings.Default.StartAutomatically = checkBox_startAutomatically.Checked;
         }
 
-        private void Form1_Resize(object sender, EventArgs e)
-        {
-            if (FormWindowState.Minimized == this.WindowState)
-            {
+        private void Form1_Resize(object sender, EventArgs e) {
+            if (FormWindowState.Minimized == this.WindowState) {
                 minimizeToTray(true);
             }
         }
 
-        private void minimizeToTray(Boolean showTip)
-        {
+        private void minimizeToTray(Boolean showTip) {
             WindowState = FormWindowState.Minimized;
             mynotifyicon.Visible = true;
             this.ShowInTaskbar = false;
         }
 
-        private void mynotifyicon_MouseDoubleClick(object sender, MouseEventArgs e)
-        {
+        private void mynotifyicon_MouseDoubleClick(object sender, MouseEventArgs e) {
             restore();
         }
 
-        private void restore()
-        {
+        private void restore() {
             WindowState = FormWindowState.Normal;
             mynotifyicon.Visible = false;
             this.ShowInTaskbar = true;
         }
 
-        private void checkBox_startMinimized_CheckedChanged(object sender, EventArgs e)
-        {
+        private void checkBox_startMinimized_CheckedChanged(object sender, EventArgs e) {
             Properties.Settings.Default.StartMinimized = checkBox_startMinimized.Checked;
         }
 
-        private void radioButton_235_100_ratio_CheckedChanged(object sender, EventArgs e)
-        {
-            if (radioButton_235_100_ratio.Checked)
-            {
+        private void radioButton_235_100_ratio_CheckedChanged(object sender, EventArgs e) {
+            if (radioButton_235_100_ratio.Checked) {
                 radioButtonCustomResolution.Checked = false;
                 radioButtonFullscreen.Checked = false;
             }
