@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlienFX Ambilight", "AlienFX\AlienFX Ambilight.csproj", "{E8C24D54-2C35-4F2A-A06F-77D10519240B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E8C24D54-2C35-4F2A-A06F-77D10519240B}.Debug|x86.ActiveCfg = Debug|x86
+		{E8C24D54-2C35-4F2A-A06F-77D10519240B}.Debug|x86.Build.0 = Debug|x86
+		{E8C24D54-2C35-4F2A-A06F-77D10519240B}.Release|x86.ActiveCfg = Release|x86
+		{E8C24D54-2C35-4F2A-A06F-77D10519240B}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
