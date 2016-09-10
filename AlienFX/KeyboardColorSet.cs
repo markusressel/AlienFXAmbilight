@@ -6,10 +6,12 @@ using System.Text;
 using LightFX;
 
 namespace AlienFX {
+
     class KeyboardColorSet {
-        public LFX_ColorStruct left;
-        public LFX_ColorStruct middleLeft;
-        public LFX_ColorStruct middleRight;
-        public LFX_ColorStruct right;
+        public LFX_ColorStruct Left { get; set; }
+        public LFX_ColorStruct MiddleLeft { get; set; }
+        public LFX_ColorStruct MiddleRight { get; set; }
+        public LFX_ColorStruct Right { get; set; }
     }
+
 }

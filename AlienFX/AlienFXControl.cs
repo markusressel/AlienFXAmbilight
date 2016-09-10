@@ -8,22 +8,25 @@ using LightFX;
 
 namespace AlienFX {
     class AlienFXControl {
+
         private readonly Object _lockObject;
-        LightFXController lightFX;
-        LinkedList<Device> devices;
+
+        private LightFXController lightFX;
+
+        private LinkedList<Device> devices;
 
         public AlienFXControl() {
             _lockObject = new Object();
             try {
                 lightFX = new LightFXController();
             } catch (Exception e) {
-                Console.WriteLine("Error loading AlienFX Library!");
+                Console.WriteLine("Error loading AlienFX Library: " + e.Message);
             }
 
             devices = new LinkedList<Device>();
         }
 
-        public bool initialize() {
+        public bool Initialize() {
             var result = lightFX.LFX_Initialize();
             if (result == LFX_Result.LFX_Success) {
                 lightFX.LFX_Reset();
@@ -37,17 +40,17 @@ namespace AlienFX {
                     uint numLights;
                     lightFX.LFX_GetNumLights(devIndex, out numLights);
 
-                    LinkedList<Light> lights = new LinkedList<Light>();
+                    LinkedList<LightingZone> lights = new LinkedList<LightingZone>();
                     for (uint lightIndex = 0; lightIndex < numLights; lightIndex++) {
                         LFX_ColorStruct currentColor;
                         lightFX.LFX_GetLightColor(devIndex, lightIndex, out currentColor);
-                        Light newLight = new Light(lightIndex);
-                        newLight.setColor(currentColor);
+                        LightingZone newLight = new LightingZone(lightIndex);
+                        newLight.Color = currentColor;
                         lights.AddLast(newLight);
 
                     }
 
-                    device.setLights(lights);
+                    device.Lights = lights;
                 }
 
                 for (uint devIndex = 0; devIndex < numDevs; devIndex++) {
@@ -59,31 +62,31 @@ namespace AlienFX {
                         continue;
 
                     Device currentDevice = devices.ElementAt((int)devIndex);
-                    currentDevice.setDescription(devDescription.ToString());
-                    currentDevice.setType(type);
+                    currentDevice.Description = devDescription.ToString();
+                    currentDevice.Type = type;
 
                     uint numLights;
                     lightFX.LFX_GetNumLights(devIndex, out numLights);
                     for (uint lightIndex = 0; lightIndex < numLights; lightIndex++) {
-                        Light currentLight = currentDevice.getLights().ElementAt((int)lightIndex);
+                        LightingZone currentLight = currentDevice.Lights.ElementAt((int)lightIndex);
 
                         StringBuilder description;
                         result = lightFX.LFX_GetLightDescription(devIndex, lightIndex, out description, 255);
                         if (result != LFX_Result.LFX_Success)
                             continue;
-                        currentLight.setDescription(description.ToString());
+                        currentLight.Description = description.ToString();
 
                         LFX_ColorStruct color;
                         result = lightFX.LFX_GetLightColor(devIndex, lightIndex, out color);
                         if (result != LFX_Result.LFX_Success)
                             continue;
-                        currentLight.setColor(color);
+                        currentLight.Color = color;
 
                         LFX_Position position;
                         result = lightFX.LFX_GetLightLocation(devIndex, lightIndex, out position);
                         if (result != LFX_Result.LFX_Success)
                             continue;
-                        currentLight.setPosition(position);
+                        currentLight.Position = position;
                     }
                 }
                 return true;
@@ -102,24 +105,24 @@ namespace AlienFX {
             }
         }
 
-        public void setColor(KeyboardColorSet colorSet) {
+        public void SetColor(KeyboardColorSet colorSet) {
             lock (_lockObject) {
                 if (lightFX != null) {
                     foreach (Device device in devices) {
-                        foreach (Light light in device.getLights()) {
-                            if (light.getDescription() == "Keyboard Left") {
-                                lightFX.LFX_SetLightColor(device.getId(), light.getId(), colorSet.left);
-                            } else if (light.getDescription() == "Keyboard Middle Left") {
-                                lightFX.LFX_SetLightColor(device.getId(), light.getId(), colorSet.middleLeft);
-                            } else if (light.getDescription() == "Keyboard Middle Right") {
-                                lightFX.LFX_SetLightColor(device.getId(), light.getId(), colorSet.middleRight);
-                            } else if (light.getDescription() == "Keyboard Right") {
-                                lightFX.LFX_SetLightColor(device.getId(), light.getId(), colorSet.right);
-                            } else if (light.getDescription() == "Logo") {
-                                byte red = (byte)(((int)colorSet.middleLeft.red + (int)colorSet.middleRight.red) / 2);
-                                byte green = (byte)(((int)colorSet.middleLeft.green + (int)colorSet.middleRight.green) / 2);
-                                byte blue = (byte)(((int)colorSet.middleLeft.blue + (int)colorSet.middleRight.blue) / 2);
-                                lightFX.LFX_SetLightColor(device.getId(), light.getId(), new LFX_ColorStruct(255, red, green, blue));
+                        foreach (LightingZone light in device.Lights) {
+                            if (light.Description == LightingZone.DESCRIPTION_KEYBOARD_LEFT) {
+                                lightFX.LFX_SetLightColor(device.Id, light.Id, colorSet.Left);
+                            } else if (light.Description == LightingZone.DESCRIPTION_KEYBOARD_MIDDLE_LEFT) {
+                                lightFX.LFX_SetLightColor(device.Id, light.Id, colorSet.MiddleLeft);
+                            } else if (light.Description == LightingZone.DESCRIPTION_KEYBOARD_MIDDLE_RIGHT) {
+                                lightFX.LFX_SetLightColor(device.Id, light.Id, colorSet.MiddleRight);
+                            } else if (light.Description == LightingZone.DESCRIPTION_KEYBOARD_RIGHT) {
+                                lightFX.LFX_SetLightColor(device.Id, light.Id, colorSet.Right);
+                            } else if (light.Description == LightingZone.DESCRIPTION_LOGO) {
+                                byte red = (byte)(((int)colorSet.MiddleLeft.red + (int)colorSet.MiddleRight.red) / 2);
+                                byte green = (byte)(((int)colorSet.MiddleLeft.green + (int)colorSet.MiddleRight.green) / 2);
+                                byte blue = (byte)(((int)colorSet.MiddleLeft.blue + (int)colorSet.MiddleRight.blue) / 2);
+                                lightFX.LFX_SetLightColor(device.Id, light.Id, new LFX_ColorStruct(255, red, green, blue));
                             }
                             //else if (light.getDescription() == "Left Speaker")
                             //{
@@ -135,7 +138,7 @@ namespace AlienFX {
             }
         }
 
-        public void release() {
+        public void Release() {
             lock (_lockObject) {
                 if (lightFX != null) {
                     lightFX.LFX_Reset();

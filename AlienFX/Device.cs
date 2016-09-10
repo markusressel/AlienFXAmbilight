@@ -6,51 +6,30 @@ using System.Text;
 using LightFX;
 
 namespace AlienFX {
+
+
     class Device {
-        uint id;
-        String description;
-        LFX_DeviceType type;
-        LinkedList<Light> lights;
+
+        public uint Id { get; set; }
+
+        public string Description { get; set; }
+
+        public LFX_DeviceType Type { get; set; }
+
+        public LinkedList<LightingZone> Lights { get; set; }
 
         public Device(uint id) {
-            this.id = id;
+            this.Id = id;
         }
 
-        public uint getId() {
-            return id;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public void setDescription(String description) {
-            this.description = description;
-        }
-
-        public LFX_DeviceType getType() {
-            return type;
-        }
-
-        public void setType(LFX_DeviceType type) {
-            this.type = type;
-        }
-
-        public LinkedList<Light> getLights() {
-            return lights;
-        }
-
-        public void setLights(LinkedList<Light> lights) {
-            this.lights = lights;
-        }
-
-        public String toString() {
+        override
+        public String ToString() {
             String erg = "";
 
-            erg += id + ": " + description;
+            erg += Id + ": " + Description;
 
-            foreach (Light light in lights) {
-                erg += "\n" + light.toString();
+            foreach (LightingZone light in Lights) {
+                erg += "\n" + light.ToString();
             }
 
             return erg;

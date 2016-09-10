@@ -30,7 +30,7 @@ namespace AlienFX {
                     CreateFlags.SoftwareVertexProcessing, present_params);
         }
 
-        public void calculatePixels(int startX, int stopX, int startY, int stopY, int stepsX, int stepsY) {
+        public void CalculatePixels(int startX, int stopX, int startY, int stopY, int stepsX, int stepsY) {
             LeftPos = new Collection<long>();
             MiddleLeftPos = new Collection<long>();
             MiddlRightPos = new Collection<long>();
@@ -83,14 +83,14 @@ namespace AlienFX {
 
         }
 
-        public void calculatePixels(int stepsX, int stepsY) {
-            calculatePixels(0, Screen.PrimaryScreen.Bounds.Width, 0, Screen.PrimaryScreen.Bounds.Height, stepsX, stepsY);
+        public void CalculatePixels(int stepsX, int stepsY) {
+            CalculatePixels(0, Screen.PrimaryScreen.Bounds.Width, 0, Screen.PrimaryScreen.Bounds.Height, stepsX, stepsY);
         }
         public void calculatePixels() {
-            calculatePixels(0, Screen.PrimaryScreen.Bounds.Width, 0, Screen.PrimaryScreen.Bounds.Height, 1, 1);
+            CalculatePixels(0, Screen.PrimaryScreen.Bounds.Width, 0, Screen.PrimaryScreen.Bounds.Height, 1, 1);
         }
 
-        public KeyboardColorSet calcAverageColor() {
+        public KeyboardColorSet CalcAverageColor() {
             // capture Screen
             surface = device.CreateOffscreenPlainSurface(Screen.PrimaryScreen.Bounds.Width,
                 Screen.PrimaryScreen.Bounds.Height, Format.A8R8G8B8, Pool.Scratch);
@@ -98,10 +98,10 @@ namespace AlienFX {
 
             graphicsStream = surface.LockRectangle(LockFlags.None);
 
-            averageColorSet.left = avcs(graphicsStream, LeftPos);
-            averageColorSet.middleLeft = avcs(graphicsStream, MiddleLeftPos);
-            averageColorSet.middleRight = avcs(graphicsStream, MiddlRightPos);
-            averageColorSet.right = avcs(graphicsStream, RightPos);
+            averageColorSet.Left = avcs(graphicsStream, LeftPos);
+            averageColorSet.MiddleLeft = avcs(graphicsStream, MiddleLeftPos);
+            averageColorSet.MiddleRight = avcs(graphicsStream, MiddlRightPos);
+            averageColorSet.Right = avcs(graphicsStream, RightPos);
 
             // graphicsStream.Close();
             // graphicsStream.Dispose();
